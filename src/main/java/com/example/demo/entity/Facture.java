@@ -17,11 +17,11 @@ public class Facture {
     private Client client;
 
     @OneToMany(mappedBy = "facture")
-    private Set<LigneFacture> lignes;
+    private Set<LigneFacture> ligneFactures;
 
     public double getTotal() {
         double prixTotal = 0;
-        for (LigneFacture ligne : lignes) {
+        for (LigneFacture ligne : ligneFactures) {
             double prixLigne =
                     ligne.getArticle().getPrix()
                             * ligne.getQuantite();
@@ -46,12 +46,12 @@ public class Facture {
         this.id = id;
     }
 
-    public Set<LigneFacture> getLignes() {
-        return lignes;
+    public Set<LigneFacture> getLigneFactures() {
+        return ligneFactures;
     }
 
-    public void setLignes(Set<LigneFacture> lignes) {
-        this.lignes = lignes;
+    public void setLigneFactures(Set<LigneFacture> ligneFactures) {
+        this.ligneFactures = ligneFactures;
     }
 
 
