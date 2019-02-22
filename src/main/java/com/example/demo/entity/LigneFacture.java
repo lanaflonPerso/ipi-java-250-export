@@ -44,4 +44,12 @@ public class LigneFacture {
     public void setQuantite(int quantite) {
         this.quantite = quantite;
     }
+
+    public Facture getFacture() {
+        return facture;
+    }
+
+    public void setFacture(Facture facture) {
+        this.facture = facture;
+    }
 }
