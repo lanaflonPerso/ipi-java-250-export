@@ -13,16 +13,33 @@ public class Facture {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    //???
+    @ManyToOne
+    private Client client;
+
+    @OneToMany(mappedBy = "facture")
     private Set<LigneFacture> lignes;
 
     public double getTotal() {
-        //TODO???
-        return 0;
+        double prixTotal = 0;
+        for (LigneFacture ligne : lignes) {
+            double prixLigne =
+                    ligne.getArticle().getPrix()
+                            * ligne.getQuantite();
+            prixTotal += prixLigne;
+        }
+        return prixTotal;
     }
 
     public Long getId() {
         return id;
+    }
+
+    public Client getClient() {
+        return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
     }
 
     public void setId(Long id) {

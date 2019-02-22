@@ -12,7 +12,10 @@ public class LigneFacture {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    //???
+    @ManyToOne
+    private Facture facture;
+
+    @ManyToOne
     private Article article;
 
     @Column
