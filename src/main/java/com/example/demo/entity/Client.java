@@ -2,6 +2,7 @@ package com.example.demo.entity;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.Set;
 
 /**
  * Created by Alexandre on 09/04/2018.
@@ -21,6 +22,9 @@ public class Client {
 
     @Column
     private LocalDate dateNaissance;
+
+    @OneToMany(mappedBy = "client")
+    private Set<Facture> factures;
 
     public Long getId() {
         return id;
@@ -53,5 +57,13 @@ public class Client {
 
     public void setDateNaissance(LocalDate dateNaissance) {
         this.dateNaissance = dateNaissance;
+    }
+
+    public Set<Facture> getFactures() {
+        return factures;
+    }
+
+    public void setFactures(Set<Facture> factures) {
+        this.factures = factures;
     }
 }

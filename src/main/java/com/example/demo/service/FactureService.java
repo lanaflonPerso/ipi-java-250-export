@@ -20,4 +20,5 @@ public class FactureService {
     public List<Facture> findAllFacture() {
         return factureRepository.findAll();
     }
+
 }

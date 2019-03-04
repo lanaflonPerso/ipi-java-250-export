@@ -1,7 +1,13 @@
 package com.example.demo.controller;
 
+import com.example.demo.entity.Article;
 import com.example.demo.entity.Client;
+import com.example.demo.entity.Facture;
+import com.example.demo.entity.LigneFacture;
+import com.example.demo.service.ClientFactureExportXlsx;
 import com.example.demo.service.ClientService;
+import com.example.demo.service.ExporterCSV;
+import com.example.demo.service.FactureService;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -30,6 +35,13 @@ public class ExportController {
     @Autowired
     private ClientService clientService;
 
+    @Autowired
+    private FactureService factureService;
+
+
+    @Autowired
+    private ClientFactureExportXlsx clientFactureExportXlsx;
+
 
     @GetMapping("/clients/csv")
     public void clientsCSV(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -39,15 +51,28 @@ public class ExportController {
         List<Client> allClients = clientService.findAllClients();
         writer.println("Id;Nom;Prenom;Date de Naissance;Age");
         LocalDate now = LocalDate.now();
-        for (Client client : allClients) {
+/*       for (Client client : allClients) {
             writer.println(
                     client.getId() + ";"
                             + client.getNom() + ";"
                             + client.getPrenom() + ";"
-                            + client.getDateNaissance().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + ";"
+                            +  + ";"
                             + (now.getYear() - client.getDateNaissance().getYear())
             );
         }
+*/
+        ExporterCSV<Client> export = new ExporterCSV<>();
+        export.addColumnLong("Id", c1 -> c1.getId());
+        export.addColumnString("Nom", c -> c.getNom());
+        export.addColumnString("Prénom", c -> c.getPrenom());
+        export.addColumnString("Date de naissance", c -> c.getDateNaissance().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        export.addColumnInteger("Age", c -> now.getYear() - c.getDateNaissance().getYear());
+
+        export.createCSV(response.getWriter(), allClients);
+
+
+        //ExporterCSV<Article> exportArticle = new ExporterCSV<>();
+        //exportArticle.addColumnString("Article", a -> a.getLibelle());
     }
 
     @GetMapping("/clients/xlsx")
@@ -104,28 +129,19 @@ public class ExportController {
 
     }
 
+    /**
+     * Export excel
+     *
+     * @param request
+     * @param response
+     * @throws IOException
+     */
     @GetMapping("/factures/xlsx")
     public void facturesXlsx(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/vnd.ms-excel");
         response.setHeader("Content-Disposition", "attachment; filename=\"factures.xlsx\"");
-
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Factures");
-
-        Row headerRow = sheet.createRow(0);
-
-        Cell cellHeaderId = headerRow.createCell(0);
-        cellHeaderId.setCellValue("Id");
-
-        int i = 1;
-        //for (Client client : allClients) {
-        //   Row row = sheet.createRow(i);
-
-        // i++;
-        //}
-
-        workbook.write(response.getOutputStream());
-        workbook.close();
-
+        clientFactureExportXlsx.facturesXlsx(response.getOutputStream());
     }
+
+
 }
