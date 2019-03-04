@@ -21,4 +21,7 @@ public class FactureService {
         return factureRepository.findAll();
     }
 
+    public Facture findById(Long factureId) {
+        return factureRepository.findById(factureId).get();
+    }
 }
