@@ -1,9 +1,7 @@
 package com.example.demo.controller;
 
-import com.example.demo.entity.Article;
 import com.example.demo.entity.Client;
 import com.example.demo.entity.Facture;
-import com.example.demo.entity.LigneFacture;
 import com.example.demo.service.*;
 import com.itextpdf.text.DocumentException;
 import org.apache.poi.ss.usermodel.*;
@@ -50,9 +48,9 @@ public class ExportController {
         response.setHeader("Content-Disposition", "attachment; filename=\"clients.csv\"");
         PrintWriter writer = response.getWriter();
         List<Client> allClients = clientService.findAllClients();
-        writer.println("Id;Nom;Prenom;Date de Naissance;Age");
         LocalDate now = LocalDate.now();
-/*       for (Client client : allClients) {
+/*        writer.println("Id;Nom;Prenom;Date de Naissance;Age");
+       for (Client client : allClients) {
             writer.println(
                     client.getId() + ";"
                             + client.getNom() + ";"
@@ -62,15 +60,18 @@ public class ExportController {
             );
         }
 */
-        ExporterCSV<Client> export = new ExporterCSV<>();
-        export.addColumnLong("Id", c1 -> c1.getId());
-        export.addColumnString("Nom", c -> c.getNom());
-        export.addColumnString("Prénom", c -> c.getPrenom());
-        export.addColumnString("Date de naissance", c -> c.getDateNaissance().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-        export.addColumnInteger("Age", c -> now.getYear() - c.getDateNaissance().getYear());
+        ExporterConfig<Client> exportConfig = new ExporterConfig<>();
+        exportConfig.addColumnLong("Id", c1 -> c1.getId());
+        exportConfig.addColumnString("Nom", c -> c.getNom());
+        exportConfig.addColumnString("Prénom", c -> c.getPrenom());
+        exportConfig.addColumnString("Date de naissance", c -> c.getDateNaissance().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        exportConfig.addColumnInteger("Age", c -> now.getYear() - c.getDateNaissance().getYear());
 
-        export.createCSV(response.getWriter(), allClients);
+        ExporterCSV<Client> exporterCSV = new ExporterCSV<>(exportConfig);
+        exporterCSV.createCSV(response.getWriter(), allClients);
 
+        ExporterXlsx<Client> exporterXlsx = new ExporterXlsx<>(exportConfig);
+        exporterXlsx.createXlsx(response.getOutputStream(), allClients);
 
         //ExporterCSV<Article> exportArticle = new ExporterCSV<>();
         //exportArticle.addColumnString("Article", a -> a.getLibelle());

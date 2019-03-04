@@ -8,30 +8,15 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.Writer;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
 public class ExporterXlsx<T> {
 
-    private List<String> headers = new ArrayList<>();
+    private ExporterConfig<T> exporter;
 
-    private List<Function<T, String>> functions = new ArrayList<>();
-
-    public void addColumnString(String headerName, Function<T, String> function) {
-        headers.add(headerName);
-        functions.add(function);
-    }
-
-    public void addColumnLong(String headerName, Function<T, Long> function) {
-        headers.add(headerName);
-        functions.add(function.andThen(integerValue -> integerValue == null ? "" : integerValue.toString()));
-    }
-
-    public void addColumnInteger(String headerName, Function<T, Integer> function) {
-        headers.add(headerName);
-        functions.add(function.andThen(integerValue -> integerValue == null ? "" : integerValue.toString()));
+    public ExporterXlsx(ExporterConfig<T> exporter) {
+        this.exporter = exporter;
     }
 
     public void createXlsx(OutputStream outputStream, List<T> objects) throws IOException {
@@ -40,7 +25,7 @@ public class ExporterXlsx<T> {
 
         Row rowHeader = sheet.createRow(0);
         int idxHeaderColumn = 0;
-        for (String header : headers) {
+        for (String header : exporter.getHeaders()) {
             Cell cell = rowHeader.createCell(idxHeaderColumn);
             cell.setCellValue(header);
             idxHeaderColumn++;
@@ -50,7 +35,7 @@ public class ExporterXlsx<T> {
         for (T object : objects) {
             Row row = sheet.createRow(idxRow);
             int idxDataColumn = 0;
-            for (Function<T, String> function : functions) {
+            for (Function<T, String> function : exporter.getFunctions()) {
                 String value = function.apply(object);
                 Cell cell = rowHeader.createCell(idxDataColumn);
                 cell.setCellValue(value);
@@ -58,6 +43,7 @@ public class ExporterXlsx<T> {
             }
             idxRow++;
         }
+        workbook.close();
     }
 
 }
